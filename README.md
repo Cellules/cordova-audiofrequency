@@ -15,7 +15,7 @@ cordova plugin add com.cellules.cordova.audiofrequency
 ## Supported Platforms
 
 * iOS
-* Android (coming soon)
+* Android
 
 ## Example
 

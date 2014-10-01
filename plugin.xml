@@ -37,9 +37,14 @@
 			</feature>
 		</config-file>
 
-		<config-file parent="/*" target="AndroidManifest.xml"></config-file>
+		<config-file parent="/*" target="AndroidManifest.xml">
+			<uses-permission android:name="android.permission.RECORD_AUDIO" />
+		</config-file>
 
-		<source-file src="src/android/AudioFrequency.java" target-dir="src/com/cellules/cordova/audiofrequency/audiofrequency" />
+		<source-file src="src/android/AudioFrequency.java" target-dir="src/com/cellules/cordova/audiofrequency" />
+		<source-file src="src/android/ToneReceiver.java" target-dir="src/com/cellules/cordova/audiofrequency" />
+
+        <source-file src="src/android/JTransforms-3.0.jar" target-dir="libs"/>
 
 	</platform>
 
