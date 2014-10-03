@@ -27,22 +27,24 @@ public class ToneReceiver extends Thread {
     
     private Bundle messageBundle = new Bundle();
     
-    public ToneReceiver() {
-        // use the mic with Auto Gain Control turned off
-        recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize);
+    public ToneReceiver(Handler handler) {
+        this.handler = handler;
+        initAudioRecord();
     }
     
-    public ToneReceiver(int bufferSizeInBytes) {
+    public ToneReceiver(int bufferSizeInBytes, Handler handler) {
+        this.handler = handler;
+
         if (bufferSizeInBytes > bufferSize) {
-            bufferSize = bufferSizeInBytes;
+            this.bufferSize = bufferSizeInBytes;
         }
         
-        // use the mic with Auto Gain Control turned off
-        recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize);
+        initAudioRecord();
     }
 
-    public void setHandler(Handler handler) {
-        this.handler = handler;
+    private void initAudioRecord() {
+        // use the mic with Auto Gain Control turned off
+        this.recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize);
     }
 
     @Override
@@ -53,6 +55,10 @@ public class ToneReceiver extends Thread {
 
         synchronized(this)
         {
+            if (recorder.getState() != AudioRecord.STATE_INITIALIZED) {
+                return; // Do nothing if not initialized
+            }
+
             recorder.startRecording();
             
             while (!isInterrupted()) {
@@ -95,12 +101,10 @@ public class ToneReceiver extends Thread {
                 }
             }
 
-            if (recorder.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
+            if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
                 recorder.stop();
+                recorder.release();
             }
-
-            recorder.release();
-            recorder = null;
         }
     }
 
@@ -152,6 +156,6 @@ public class ToneReceiver extends Thread {
     }
 
     private double calculateFrequency(double index) {
-        return sampleRateInHz * index / bufferSize;
+        return SAMPLE_RATE * index / bufferSize;
     }
 }
