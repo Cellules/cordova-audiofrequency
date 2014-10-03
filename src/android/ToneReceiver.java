@@ -11,13 +11,13 @@ import org.jtransforms.fft.DoubleFFT_1D;
 
 public class ToneReceiver extends Thread {
     
-    private int sampleRateInHz = 44100;
+    public static final int SAMPLE_RATE = 44100;
 
-    private int channelConfig = AudioFormat.CHANNEL_IN_MONO;
+    public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
 
-    private int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+    public static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
 
-    private int bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat);
+    private int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
 
     private AudioRecord recorder;
 
@@ -29,7 +29,7 @@ public class ToneReceiver extends Thread {
     
     public ToneReceiver() {
         // use the mic with Auto Gain Control turned off
-        recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, sampleRateInHz, channelConfig, audioFormat, bufferSize);
+        recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize);
     }
     
     public ToneReceiver(int bufferSizeInBytes) {
@@ -38,7 +38,7 @@ public class ToneReceiver extends Thread {
         }
         
         // use the mic with Auto Gain Control turned off
-        recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, sampleRateInHz, channelConfig, audioFormat, bufferSize);
+        recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize);
     }
 
     public void setHandler(Handler handler) {
