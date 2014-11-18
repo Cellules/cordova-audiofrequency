@@ -87,6 +87,10 @@
     // create an AV Capture session
     self.captureSession = [[AVCaptureSession alloc] init];
 
+    // continue recording when an external media is played
+    UInt32 audioRouteOverride = kAudioSessionCategory_AmbientSound;
+    AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(audioRouteOverride), &audioRouteOverride);
+
     // setup the audio input
     AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
     if(audioDevice) {
