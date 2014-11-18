@@ -23,7 +23,7 @@
 @property (nonatomic) DSPSplitComplex complexBuffer;
 
 @property (nonatomic) UInt32 accumulatorFillIndex;
-@property (nonatomic) Float32 *dataAccumulator;
+@property (nonatomic) NSMutableData *dataAccumulator;
 
 @end
 
@@ -49,7 +49,7 @@
 
 - (void)dealloc
 {
-//    vDSP_destroy_fftsetup(self.fftsetup);
+    vDSP_destroy_fftsetup(_fftsetup);
     [self destroyAccumulator];
 }
 
@@ -163,14 +163,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
     // get samples
     CMItemCount numSamples = CMSampleBufferGetNumSamples(sampleBuffer);
-	NSUInteger channelIndex = 0;
+    NSUInteger channelIndex = 0;
 
     CMBlockBufferRef audioBlockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
-	size_t audioBlockBufferOffset = (channelIndex * numSamples * sizeof(SInt16));
-	size_t lengthAtOffset = 0;
-	size_t totalLength = 0; // I think this is the same as $numSamples above, since it's mono
-	char *dataPointer = NULL;
-	CMBlockBufferGetDataPointer(audioBlockBuffer, audioBlockBufferOffset, &lengthAtOffset, &totalLength, &dataPointer);
+    size_t audioBlockBufferOffset = (channelIndex * numSamples * sizeof(SInt16));
+    size_t lengthAtOffset = 0;
+    size_t totalLength = 0; // I think this is the same as $numSamples above, since it's mono
+    char *dataPointer = NULL;
+    CMBlockBufferGetDataPointer(audioBlockBuffer, audioBlockBufferOffset, &lengthAtOffset, &totalLength, &dataPointer);
 
     // check what sample format we have, this should always be linear PCM but may have 1 or 2 channels
     assert(streamDescription->mFormatID == kAudioFormatLinearPCM);
@@ -199,8 +199,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 #pragma -mark signal processing data
 
-- (void)processSample:(Float32 *)samples rate:(int)sampleRate
+- (void)processSample:(NSMutableData *)data rate:(int)sampleRate
 {
+    Float32 *samples = [data mutableBytes];
+
     // Window the samples (Multiplies vector A by vector B and leaves the result in vector C)
     vDSP_vmul(samples, 1, _window, 1, samples, 1, _spectrumResolution);
 
@@ -242,14 +244,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)initializeAccumulator
 {
-    _dataAccumulator = (Float32*) malloc(sizeof(Float32)*_spectrumResolution);
+    _dataAccumulator = [[NSMutableData alloc] initWithLength:_spectrumResolution * sizeof(Float32)];
     _accumulatorFillIndex = 0;
 }
 
 - (void)destroyAccumulator
 {
     if (_dataAccumulator) {
-        free(_dataAccumulator);
         _dataAccumulator = nil;
     }
     _accumulatorFillIndex = 0;
@@ -260,7 +261,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     if (self.accumulatorFillIndex >= _spectrumResolution) {
         return YES;
     } else {
-        memmove(_dataAccumulator + _accumulatorFillIndex, frames, sizeof(Float32)*numSamples);
+        [_dataAccumulator appendBytes:frames length:numSamples * sizeof(Float32)];
         _accumulatorFillIndex = _accumulatorFillIndex + (UInt32)numSamples;
         if (_accumulatorFillIndex >= _spectrumResolution) {
             return YES;
@@ -272,7 +273,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)emptyAccumulator
 {
     _accumulatorFillIndex = 0;
-    memset(_dataAccumulator, 0, sizeof(Float32)*_spectrumResolution);
+    [_dataAccumulator setLength:0];
 }
 
 @end
