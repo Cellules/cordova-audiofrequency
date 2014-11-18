@@ -14,6 +14,7 @@
 
 @property (strong, nonatomic) AVCaptureSession *captureSession;
 @property (strong, nonatomic) AVCaptureConnection *audioConnection;
+@property (strong, nonatomic) dispatch_queue_t captureQueue;
 
 @property (nonatomic) UInt32 spectrumResolution;
 @property (nonatomic) long nOver2;
@@ -112,7 +113,8 @@
     } else {
         NSLog(@"Couldn't add audio output");
     }
-    [audioOut setSampleBufferDelegate:self queue:dispatch_get_main_queue()];
+    _captureQueue = dispatch_queue_create("buffer queue", DISPATCH_QUEUE_SERIAL);
+    [audioOut setSampleBufferDelegate:self queue:_captureQueue];
 }
 
 - (void)start
@@ -138,8 +140,7 @@
     [self.captureSession addInput:input];
 
     AVCaptureAudioDataOutput *output = [[AVCaptureAudioDataOutput alloc] init];
-    dispatch_queue_t queue = dispatch_queue_create("Sample callback", DISPATCH_QUEUE_SERIAL);
-    [output setSampleBufferDelegate:self queue:queue];
+    [output setSampleBufferDelegate:self queue:_captureQueue];
     [self.captureSession addOutput:output];
 
     [self.captureSession startRunning];
