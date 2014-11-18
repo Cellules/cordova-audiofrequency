@@ -50,6 +50,8 @@
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVAudioSessionRouteChangeNotification object:nil];
+
     vDSP_destroy_fftsetup(_fftsetup);
     [self destroyAccumulator];
 }
