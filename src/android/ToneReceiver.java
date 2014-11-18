@@ -10,7 +10,7 @@ import android.os.Message;
 import org.jtransforms.fft.DoubleFFT_1D;
 
 public class ToneReceiver extends Thread {
-    
+
     public static final int SAMPLE_RATE = 44100;
 
     public static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
@@ -22,23 +22,23 @@ public class ToneReceiver extends Thread {
     private AudioRecord recorder;
 
     private Handler handler;
-    
+
     private Message message;
-    
+
     private Bundle messageBundle = new Bundle();
-    
+
     public ToneReceiver(Handler handler) {
         this.handler = handler;
         initAudioRecord();
     }
-    
+
     public ToneReceiver(int bufferSizeInBytes, Handler handler) {
         this.handler = handler;
 
         if (bufferSizeInBytes > bufferSize) {
             this.bufferSize = bufferSizeInBytes;
         }
-        
+
         initAudioRecord();
     }
 
@@ -60,7 +60,7 @@ public class ToneReceiver extends Thread {
             }
 
             recorder.startRecording();
-            
+
             while (!isInterrupted()) {
                 numReadBytes = recorder.read(audioBuffer, 0, bufferSize);
 
@@ -70,7 +70,7 @@ public class ToneReceiver extends Thread {
                     for (int i = 0; i < bufferSize; i++) {
                         samples[i] = (double) audioBuffer[i];
                     }
-                    
+
                     // window the samples
                     samples = hammingWindow(samples);
 
@@ -80,10 +80,10 @@ public class ToneReceiver extends Thread {
                         fftData[2*i] = samples[i];
                         fftData[2*i+1] = 0;
                     }
-                    
+
                     // FFT compute
                     fft.complexForward(fftData);
-                    
+
                     // magnitudes
                     double[] magnitude = magnitude(fftData);
 
@@ -94,7 +94,7 @@ public class ToneReceiver extends Thread {
                     double frequency = calculateFrequency(peakIndex);
 
                     // send frequency to handler
-                    message = handler.obtainMessage();    
+                    message = handler.obtainMessage();
                     messageBundle.putLong("frequency", Math.round(frequency));
                     message.setData(messageBundle);
                     handler.sendMessage(message);

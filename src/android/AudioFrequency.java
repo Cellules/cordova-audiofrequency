@@ -19,9 +19,9 @@ public class AudioFrequency extends CordovaPlugin
     private static final String LOG_TAG = "AudioFrequency";
 
     private CallbackContext callbackContext = null;
-    
+
     private ToneReceiver receiver;
-    
+
     private final FrequencyHandler handler = new FrequencyHandler(this);
 
     @Override
@@ -88,7 +88,7 @@ public class AudioFrequency extends CordovaPlugin
         public FrequencyHandler(AudioFrequency activity) {
             mActivity = new WeakReference<AudioFrequency>(activity);
         }
-        
+
         @Override
         public void handleMessage(Message msg) {
             AudioFrequency activity = mActivity.get();

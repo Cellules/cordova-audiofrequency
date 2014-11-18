@@ -23,7 +23,7 @@
     self.callbackId = command.callbackId;
 
     UInt32 spectrumResolution = 16384; //16384; //32768; 65536; 131072;
-	
+
     self.toneReceiver = [[ToneReceiver alloc] initWithSpectrumResolution:spectrumResolution];
     self.toneReceiver.delegate = self;
 
@@ -47,7 +47,7 @@
 {
     // NSString *frequencyString = [NSString stringWithFormat:@"%li Hz", lroundf(frequency)];
     // NSLog(@"Frequency: %@", frequencyString);
-    
+
     NSDictionary* frequencyData = [NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:frequency] forKey:@"frequency"];
 
     if (self.callbackId) {
