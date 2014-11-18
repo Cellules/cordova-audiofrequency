@@ -18,6 +18,21 @@
 
 @implementation CDVAudioFrequency
 
+- (void)pluginInitialize
+{
+    NSNotificationCenter* listener = [NSNotificationCenter defaultCenter];
+
+    [listener addObserver:self
+                 selector:@selector(didEnterBackground)
+                     name:UIApplicationDidEnterBackgroundNotification
+                   object:nil];
+
+    [listener addObserver:self
+                 selector:@selector(willEnterForeground)
+                     name:UIApplicationWillEnterForegroundNotification
+                   object:nil];
+}
+
 - (void)start:(CDVInvokedUrlCommand*)command
 {
     self.callbackId = command.callbackId;
@@ -65,6 +80,16 @@
 - (void)onReset
 {
     [self stop:nil];
+}
+
+- (void)didEnterBackground
+{
+    [self.toneReceiver stop];
+}
+
+- (void)willEnterForeground
+{
+    [self.toneReceiver start];
 }
 
 @end
