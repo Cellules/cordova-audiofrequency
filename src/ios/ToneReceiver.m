@@ -88,8 +88,12 @@
     self.captureSession = [[AVCaptureSession alloc] init];
 
     // continue recording when an external media is played
-    UInt32 audioRouteOverride = kAudioSessionCategory_AmbientSound;
-    AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(audioRouteOverride), &audioRouteOverride);
+    // UInt32 audioRouteOverride = kAudioSessionCategory_AmbientSound;
+    // AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(audioRouteOverride), &audioRouteOverride);
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+
+    NSNotificationCenter* listener = [NSNotificationCenter defaultCenter];
+    [listener addObserver:self selector:@selector(audioSessionRouteChange:) name:AVAudioSessionRouteChangeNotification object:nil];
 
     // setup the audio input
     AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
@@ -121,6 +125,19 @@
     [audioOut setSampleBufferDelegate:self queue:_captureQueue];
 }
 
+-(void)audioSessionRouteChange:(NSNotification*)notification
+{
+    // restores the AudioSession's category if it changed by an other session
+    NSDictionary *interuptionDict = notification.userInfo;
+    NSInteger routeChangeReason = [[interuptionDict valueForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
+    if (routeChangeReason == AVAudioSessionRouteChangeReasonCategoryChange) {
+        AVAudioSession* session = [AVAudioSession sharedInstance];
+        if ([session category] != AVAudioSessionCategoryAmbient) {
+            [session setCategory:AVAudioSessionCategoryAmbient withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+        }
+    }
+}
+
 - (void)start
 {
     [self.captureSession startRunning];
@@ -129,9 +146,6 @@
 - (void)stop
 {
     [self.captureSession stopRunning];
-
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setActive:NO error:nil];
 }
 
 
