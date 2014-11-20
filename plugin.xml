@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="com.cellules.cordova.audiofrequency" 
-	    version="0.0.1" 
-	    xmlns="http://apache.org/cordova/ns/plugins/1.0" 
+<plugin id="com.cellules.cordova.audiofrequency"
+	    version="0.0.1"
+	    xmlns="http://apache.org/cordova/ns/plugins/1.0"
 	    xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<name>AudioFrequency</name>
@@ -45,6 +45,7 @@
 		<source-file src="src/android/ToneReceiver.java" target-dir="src/com/cellules/cordova/audiofrequency" />
 
         <source-file src="src/android/JTransforms-3.0.jar" target-dir="libs"/>
+        <source-file src="src/android/JLargeArrays-1.2.jar" target-dir="libs"/>
 
 	</platform>
 
