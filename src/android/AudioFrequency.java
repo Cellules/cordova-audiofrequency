@@ -34,7 +34,8 @@ public class AudioFrequency extends CordovaPlugin
             this.callbackContext = callbackContext;
 
             try {
-                receiver = new ToneReceiver(16*1024, handler);
+                receiver = new ToneReceiver(16384);
+                receiver.setHandler(handler);
                 receiver.start();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -93,7 +94,7 @@ public class AudioFrequency extends CordovaPlugin
         public void handleMessage(Message msg) {
             AudioFrequency activity = mActivity.get();
             if (activity != null) {
-                Log.d(LOG_TAG, msg.getData().toString());
+                // Log.d(LOG_TAG, msg.getData().toString());
 
                 JSONObject info = new JSONObject();
                 try {
